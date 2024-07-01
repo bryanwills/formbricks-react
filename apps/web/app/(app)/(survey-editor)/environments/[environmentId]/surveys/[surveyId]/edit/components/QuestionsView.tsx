@@ -11,15 +11,13 @@ import {
 import { createId } from "@paralleldrive/cuid2";
 import React, { SetStateAction, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-
-import { MultiLanguageCard } from "@formbricks/ee/multiLanguage/components/MultiLanguageCard";
+import { MultiLanguageCard } from "@formbricks/ee/multi-language/components/multi-language-card";
 import { extractLanguageCodes, getLocalizedValue, translateQuestion } from "@formbricks/lib/i18n/utils";
 import { structuredClone } from "@formbricks/lib/pollyfills/structuredClone";
 import { checkForEmptyFallBackValue, extractRecallInfo } from "@formbricks/lib/utils/recall";
 import { TAttributeClass } from "@formbricks/types/attributeClasses";
 import { TProduct } from "@formbricks/types/product";
 import { TSurvey, TSurveyQuestion } from "@formbricks/types/surveys";
-
 import {
   findQuestionsWithCyclicLogic,
   isCardValid,
@@ -337,8 +335,8 @@ export const QuestionsView = ({
   };
 
   return (
-    <div className="mt-16 px-5 py-4">
-      <div className="mb-5 flex flex-col gap-5">
+    <div className="mt-16 w-full px-5 py-4">
+      <div className="mb-5 flex w-full flex-col gap-5">
         <EditWelcomeCard
           localSurvey={localSurvey}
           setLocalSurvey={setLocalSurvey}
@@ -367,6 +365,7 @@ export const QuestionsView = ({
           internalQuestionIdMap={internalQuestionIdMap}
           attributeClasses={attributeClasses}
           addQuestion={addQuestion}
+          isFormbricksCloud={isFormbricksCloud}
         />
       </DndContext>
 

@@ -1,11 +1,10 @@
 import { SubmitButton } from "@/components/buttons/SubmitButton";
 import { ScrollableContainer } from "@/components/wrappers/ScrollableContainer";
 import { calculateElementIdx } from "@/lib/utils";
-
+import { useEffect } from "preact/hooks";
 import { getLocalizedValue } from "@formbricks/lib/i18n/utils";
 import { TResponseData, TResponseTtc } from "@formbricks/types/responses";
 import { TI18nString, TSurvey } from "@formbricks/types/surveys";
-
 import { Headline } from "./Headline";
 import { HtmlBody } from "./HtmlBody";
 
@@ -18,8 +17,9 @@ interface WelcomeCardProps {
   survey: TSurvey;
   languageCode: string;
   responseCount?: number;
-  isInIframe: boolean;
+  autoFocusEnabled: boolean;
   replaceRecallInfo: (text: string, responseData: TResponseData) => string;
+  isCurrent: boolean;
 }
 
 const TimerIcon = () => {
@@ -68,8 +68,9 @@ export const WelcomeCard = ({
   languageCode,
   survey,
   responseCount,
-  isInIframe,
+  autoFocusEnabled,
   replaceRecallInfo,
+  isCurrent,
 }: WelcomeCardProps) => {
   const calculateTimeToComplete = () => {
     let idx = calculateElementIdx(survey, 0);
@@ -102,12 +103,35 @@ export const WelcomeCard = ({
   const timeToFinish = survey.welcomeCard.timeToFinish;
   const showResponseCount = survey.welcomeCard.showResponseCount;
 
+  const handleSubmit = () => {
+    onSubmit({ ["welcomeCard"]: "clicked" }, {});
+  };
+
+  useEffect(() => {
+    const handleEnter = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleSubmit();
+      }
+    };
+
+    if (isCurrent && survey.type === "link") {
+      document.addEventListener("keydown", handleEnter);
+    } else {
+      document.removeEventListener("keydown", handleEnter);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEnter);
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCurrent]);
+
   return (
     <div>
       <ScrollableContainer>
         <div>
           {fileUrl && (
-            /* eslint-disable-next-line @next/next/no-img-element */
             <img src={fileUrl} className="mb-8 max-h-96 w-1/3 rounded-lg object-contain" alt="Company Logo" />
           )}
 
@@ -126,13 +150,11 @@ export const WelcomeCard = ({
         <SubmitButton
           buttonLabel={getLocalizedValue(buttonLabel, languageCode)}
           isLastQuestion={false}
-          focus={!isInIframe}
-          onClick={() => {
-            onSubmit({ ["welcomeCard"]: "clicked" }, {});
-          }}
+          focus={autoFocusEnabled}
+          onClick={handleSubmit}
           type="button"
+          onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
         />
-        <div className="text-subheading hidden items-center text-xs md:flex">Press Enter ↵</div>
       </div>
 
       {timeToFinish && !showResponseCount ? (
